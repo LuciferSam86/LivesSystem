@@ -1,0 +1,127 @@
+version "4.3.3"
+
+
+
+// create a new class inherited from DoomPlayer, so we have all the defaults.
+class EternalDoomPlayer : DoomPlayer
+{
+	// Over ride the Die function
+    override void Die(Actor source, Actor inflictor, int dmgflags, Name MeansOfDeath)
+	{
+		// If the player have not Extra lives anymore it dies
+        if (!FindInventory("ExtraLife"))
+        {
+			// Do the standard functin (notice the super keyword)
+            super.Die(source, inflictor, dmgflags, MeansOfDeath);
+        }
+	}
+
+	// Over ride the DamageMobj function
+    override int DamageMobj(Actor inflictor, Actor source, int damage, Name mod, int flags, double angle)
+	{
+		Name prevType = damageType;
+		int prevSpecial = special1;
+
+		// get the dagamage from the standard
+        int newDam = super.DamageMobj(inflictor, source, damage, mod, flags, angle);
+
+		// if the health and I have still Extra lives
+        if (health <= 0 && FindInventory("ExtraLife"))
+		{
+			damageType = prevType;
+			special1 = prevSpecial;
+			
+			// Get the max health for the actor
+            health = GetMaxHealth();
+			
+            // set the health
+            player.health = health;
+            
+            // give the Green Armor
+            GiveInventory("GreenArmor",1);
+            
+            // set the player invulnerable
+            GiveInventory("GodOneUp",1);
+			
+            // Take one extralive
+            TakeInventory("ExtraLife", 1);
+		}
+		return newDam;
+	}
+}
+
+
+// TODO: check how to do this!
+/*
+Class MyStatusBar : DoomStatusBar {
+	HUDFont noMonospaceSmallfont;
+	HUDFont monospaceSmallfont;
+	HUDFont shadowSmallfont;
+	
+	override void Init() {
+		Super.Init();
+		SetSize(32, 320, 200);
+		
+		// smallfont is a built in Font object in ZScript - if you have your own font
+		// and want to use that instead, you should initialize it like this:
+		// Font myFont = "<FONT NAME>";
+		
+		// this font will not be monospaced when drawn
+		noMonospaceSmallfont = HUDFont.Create(smallfont);
+		// this font will be monospaced when drawn,
+		// and each character will be spaced based on the width of the "0" character
+		monospaceSmallfont = HUDFont.Create(smallfont, smallfont.GetCharWidth("0"), true);
+		// this font will not be monospaced, but will cast a shadow 8 pixels to the right and 8 pixels to the left
+		shadowSmallfont = HUDFont.Create(smallfont, 0, false, 8, 8);
+	}
+	
+	override void Draw (int state, double TicFrac) {
+		Super.Draw (state, TicFrac);
+		
+		if (state == HUD_StatusBar) {
+			BeginStatusBar();
+			DrawMainBar();
+		}
+		else if (state == HUD_Fullscreen) {
+			BeginHUD();
+			DrawFullScreenStuff();
+		}
+	}
+	
+	void DrawMainBar() {
+		DrawSomeText();
+	}
+	
+	void DrawFullScreenStuff() {
+		DrawSomeText();
+	}
+	
+	void DrawSomeText() {
+		// get the height of the font (we could get the height of any of the 3 HUDFonts we defined,
+		// but they all use the same font internally so it shouldn't matter)
+		// this is used to position each string below the last one
+		int fontHeight = noMonospaceSmallfont.mFont.GetHeight();
+		
+		DrawString(noMonospaceSmallfont, "Lives: sss", (0, 7 * fontHeight));
+	}
+}*/
+
+
+// Define an invulnerability powerup
+class GodOneUp : PowerUpGiver
+{
+    Default
+    {
+        +INVENTORY.AUTOACTIVATE
+        +INVENTORY.ALWAYSPICKUP
+        
+        // 10 seconds . If negative is second, otherwise ticks (1/35 seconds)
+        powerup.duration -10;
+        
+        // Define the type of powerup (read zdoom wiki)
+        Powerup.Type "PowerInvulnerable";
+        
+         // Color the screen while the powerup is active
+        Powerup.Color "Grey";
+    }
+}

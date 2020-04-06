@@ -1,0 +1,60 @@
+version "4.3.3"
+
+// ExtraLife class
+class ExtraLife : Inventory
+{
+    Default
+    {
+        Inventory.MaxAmount 256;
+        Inventory.PickupMessage "You got an extra life!" ;
+        +INVENTORY.UNDROPPABLE
+        scale 0.70;
+    }
+    States
+	{
+	Spawn:
+		XLIF ABCD 6 Bright;
+		Loop;
+	}
+}
+
+// Testing for an enemy which Freeze if hit with ice damage
+/*
+You can summon with "summon FreezeDeathImp"
+and then kill with "mdk ice"
+*/
+Class FreezeDeathImp : DoomImp
+{
+  states
+  {
+  Ice:
+    TROO D 5 A_GenericFreezeDeath;
+    TROO D 1 A_FreezeDeathChunks;
+  }
+}
+
+
+
+class Soulsphere2 : Soulsphere {}
+class MediKit2 : MediKit{}
+
+// RandomSpawner : it could replace the soulsphere with the Soulsphere or the ExtraLife
+class SoulsphereReplacer : RandomSpawner replaces Soulsphere
+{
+    default
+    {
+        DropItem "Soulsphere2", 255,3;
+        DropItem "ExtraLife",255,1;
+    }
+    
+}
+
+class MediKitReplacer : RandomSpawner replaces MediKit
+{
+    default
+    {
+        DropItem "MediKit2", 255,3;
+        DropItem "ExtraLife",255,1;
+    }
+    
+}

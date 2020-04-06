@@ -1,0 +1,5 @@
+GameInfo
+{
+	// Add the modified DoomPlayer actor
+	playerclasses = "EternalDoomPlayer"
+}
